@@ -1,0 +1,128 @@
+---
+alwaysApply: true
+---
+# Cursor Rules - Chris Mize's Programming Values
+
+## Core Principles
+
+### 1. Minimal Changes & Backwards Compatibility
+- **Preserve existing code structure** unless there's a compelling reason to change it
+- **Maintain backwards compatibility** when possible - prefer additive changes over breaking changes
+- **Don't refactor working code** just for the sake of it
+- **Incremental improvements** over wholesale rewrites
+
+### 2. Readability Over Complexity
+- **Simple, readable code** is always preferred over clever or "fancy" solutions
+- **Clear variable and function names** that describe their purpose
+- **Avoid premature optimization** - write the simplest solution that works
+- **Good abstractions are welcome** when they improve readability and maintainability
+- **Prefer explicit over implicit** - make code intentions clear
+
+### 3. Separation of Concerns & Single Responsibility
+- **Each function should do one thing well** - avoid functions that handle multiple unrelated responsibilities
+- **Keep data structures focused** - don't mix unrelated data together
+- **Modular design** - think carefully about how functions and data structures interact
+- **Detect and remove coupling** - actively identify dependencies between modules and reduce them where possible
+- **Avoid tight coupling** between unrelated functionality
+- **Clear boundaries** between different layers/concerns in the application
+
+### 4. Strict Typing
+- **Use strict mode** and leverage the language's type system fully
+- **Prefer explicit types** - avoid types like `any`; use `unknown` when the type is truly unknown
+- **Generic types** for reusable, type-safe abstractions
+- **Type guards** when needed for runtime type checking
+- **Avoid type assertions** unless absolutely necessary
+
+### 5. Minimal Comments
+- **Comments only for:**
+  - Public API methods exposed to other parts of the application
+  - Non-obvious behaviors that can't be made obvious through code
+  - Extremely complex algorithms that need explanation
+- **Let the code speak for itself** - prefer self-documenting code
+- **No comments for obvious code** - if it's clear what the code does, don't comment it
+
+## Code Style Guidelines
+
+### Function Design
+- **Small, focused functions** - if a function is doing too much, break it down
+- **Pure functions** when possible - avoid side effects
+- **Clear parameter names** that describe their purpose
+- **Return early** to reduce nesting
+- **Avoid nesting** where possible - prefer flat structures over deeply nested conditions
+- **Use default parameters** instead of conditional logic when appropriate
+
+### Data Structures
+- **Immutable data** when possible - prefer creating new objects over mutating existing ones
+- **Clear, descriptive property names**
+- **Avoid deeply nested objects** - flatten when it improves readability
+- **Use interfaces for object shapes** - prefer interfaces over type aliases for objects
+
+### Error Handling
+- **Explicit error handling** - don't ignore errors
+- **Meaningful error messages** that help with debugging
+- **Use custom error types** when appropriate
+- **Fail fast** - detect and handle errors as early as possible
+
+### Testing
+- **Write tests for public APIs** and complex logic
+- **Test behavior, not implementation** - focus on what the code does, not how it does it
+- **Clear test descriptions** that explain the scenario being tested
+- **Avoid testing trivial code** - focus on business logic and edge cases
+
+## Project Structure
+- **Clear separation** between different types of code (data, views, utilities, etc.)
+- **Consistent file naming** conventions
+- **Logical directory structure** that reflects the domain
+- **Keep related code together** - don't scatter related functionality across the codebase
+
+## Performance Considerations
+- **Don't optimize prematurely** - write clear, correct code first
+- **Simple solutions** are often fast enough
+- **Consider readability** when making performance trade-offs
+
+## Code Review Guidelines
+- **Focus on correctness and clarity** over style preferences
+- **Question complexity** - if something seems overly complex, it probably is
+- **Detect and remove coupling** - actively identify dependencies between modules and reduce them where possible
+- **Look for coupling** - ensure changes don't create unwanted dependencies
+- **Verify type safety** - ensure TypeScript is being used effectively
+
+## When Suggesting Changes
+- **Explain the reasoning** behind suggested changes
+- **Consider the broader impact** - how does this change affect other parts of the system?
+- **Prefer small, focused changes** over large refactoring
+- **Maintain consistency** with existing patterns in the codebase
+- **Respect existing abstractions** unless they're clearly problematic
+
+## Anti-Patterns to Avoid
+- **God objects** - classes or objects that do too many things
+- **Deep inheritance hierarchies** - prefer composition over inheritance
+- **Magic numbers/strings** - use named constants
+- **Long parameter lists** - use objects or builder patterns
+- **Side effects in pure functions** - keep functions predictable
+- **Premature abstraction** - don't create abstractions until you have concrete examples
+- **Circular dependencies** - break dependency cycles between modules
+
+Remember: **Simple, readable, and maintainable code is the goal. Every decision should be made with these principles in mind.** 
+
+## Language-specific instructions
+
+### TypeScript/JavaScript
+- **Use strict TypeScript** with `strict: true` in tsconfig
+- **Prefer `const` over `let`** - only use `let` when reassignment is necessary
+- **Avoid `var`** entirely
+- **Prefer object destructuring** for cleaner code
+- **Use template literals** over string concatenation
+
+### Python
+- **Use type hints** for function parameters and return values
+- **Prefer list comprehensions** over explicit loops when they improve readability
+- **Use f-strings** over `.format()` or `%` formatting
+- **Follow PEP 8** for code style and formatting
+- **Use `dataclasses`** for simple data containers
+- **Prefer `pathlib`** over `os.path` for file operations
+- **Use context managers** (`with` statements) for resource management
+- **Avoid mutable default arguments** - use `None` as default and initialize in function body
+- **Use `collections.defaultdict`** and `collections.Counter` when appropriate
+- **Prefer explicit imports** over wildcard imports (`from module import *`)
+- **Use `typing.Protocol`** for structural typing over inheritance
