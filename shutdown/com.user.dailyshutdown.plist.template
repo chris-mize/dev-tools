@@ -14,9 +14,9 @@
     <key>StartCalendarInterval</key>
     <dict>
         <key>Hour</key>
-        <integer>17</integer>
+        <integer>20</integer>
         <key>Minute</key>
-        <integer>45</integer>
+        <integer>46</integer>
     </dict>
     
     <key>RunAtLoad</key>
@@ -30,5 +30,18 @@
     
     <key>KeepAlive</key>
     <false/>
+    
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        <key>HOME</key>
+        <string>HOME_PATH_PLACEHOLDER</string>
+        <key>USER</key>
+        <string>USER_PLACEHOLDER</string>
+    </dict>
+    
+    <key>WorkingDirectory</key>
+    <string>HOME_PATH_PLACEHOLDER</string>
 </dict>
 </plist> 

@@ -19,6 +19,7 @@ cp "$SCRIPT_DIR/com.user.dailyshutdown.plist.template" "$PLIST_DEST"
 # Replace placeholders with actual paths
 sed -i '' "s|SCRIPT_PATH_PLACEHOLDER|$SCRIPT_DIR/shutdown_script_interactive.sh|g" "$PLIST_DEST"
 sed -i '' "s|HOME_PATH_PLACEHOLDER|$HOME|g" "$PLIST_DEST"
+sed -i '' "s|USER_PLACEHOLDER|$USER|g" "$PLIST_DEST"
 echo "✓ Created and configured plist file"
 
 # Load the launchd job
