@@ -94,11 +94,7 @@ if pgrep -f "loginwindow" > /dev/null && [ -n "$CURRENT_USER" ]; then
         exit 0
     else
         log_message "User confirmed shutdown"
-        send_notification "Shutdown Confirmed" "Shutdown will proceed in 1 minute. Save your work now!"
         
-        # Wait 1 minute, then shutdown
-        sleep 60
-        log_message "Initiating shutdown after user confirmation"
         
         # Use System Events shutdown method (preferred)
         log_message "Using System Events for shutdown"
