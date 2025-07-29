@@ -135,8 +135,8 @@ cp "$SCRIPT_DIR/com.user.dailyshutdown.plist.template" "$PLIST_DEST"
 sed -i '' "s|SCRIPT_PATH_PLACEHOLDER|$SCRIPT_DIR/shutdown_script_interactive.sh|g" "$PLIST_DEST"
 sed -i '' "s|HOME_PATH_PLACEHOLDER|$HOME|g" "$PLIST_DEST"
 sed -i '' "s|USER_PLACEHOLDER|$USER|g" "$PLIST_DEST"
-sed -i '' "s|<integer>17</integer>|<integer>$hour</integer>|g" "$PLIST_DEST"
-sed -i '' "s|<integer>40</integer>|<integer>$minute</integer>|g" "$PLIST_DEST"
+sed -i '' "s|HOUR_PLACEHOLDER|$hour|g" "$PLIST_DEST"
+sed -i '' "s|MINUTE_PLACEHOLDER|$minute|g" "$PLIST_DEST"
 echo "✓ Created and configured plist file with shutdown time $hour:$minute"
 
 # Load the launchd job
