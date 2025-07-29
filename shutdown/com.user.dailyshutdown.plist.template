@@ -14,9 +14,9 @@
     <key>StartCalendarInterval</key>
     <dict>
         <key>Hour</key>
-        <integer>20</integer>
+        <integer>17</integer>
         <key>Minute</key>
-        <integer>46</integer>
+        <integer>40</integer>
     </dict>
     
     <key>RunAtLoad</key>

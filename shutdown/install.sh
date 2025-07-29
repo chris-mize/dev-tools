@@ -8,6 +8,44 @@ echo "Setting up daily shutdown at 5:45 PM..."
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Check and request notification permissions
+echo "Checking notification permissions..."
+check_notification_permissions() {
+    # Check if we can send notifications by attempting a test notification
+    if osascript -e 'tell application "System Events" to display notification "Test" with title "Test"' 2>/dev/null; then
+        echo "✓ Notification permissions confirmed"
+        return 0
+    else
+        echo "⚠ Notification permissions not granted"
+        echo "Requesting notification access..."
+        
+        # Try to request notification permissions by showing a dialog
+        osascript -e 'tell application "System Events"
+            activate
+            display dialog "This shutdown script needs notification permissions to warn you about shutdowns. Please grant notification access when prompted." with title "Notification Permission Required" buttons {"OK"} default button "OK" with icon note
+        end tell' 2>/dev/null
+        
+        # Try sending a test notification again
+        if osascript -e 'tell application "System Events" to display notification "Test" with title "Test"' 2>/dev/null; then
+            echo "✓ Notification permissions granted"
+            return 0
+        else
+            echo "⚠ Notification permissions still not available"
+            echo ""
+            echo "IMPORTANT: You need to manually grant notification permissions:"
+            echo "1. Go to System Preferences > Notifications & Focus"
+            echo "2. Find your terminal app (Terminal, iTerm, etc.) in the list"
+            echo "3. Enable notifications for the terminal application"
+            echo "4. Or install terminal-notifier: brew install terminal-notifier"
+            echo ""
+            echo "The script will still work, but you won't see shutdown warnings."
+            return 1
+        fi
+    fi
+}
+
+check_notification_permissions
+
 # Make the shutdown script executable
 chmod +x "$SCRIPT_DIR/shutdown_script_interactive.sh"
 echo "✓ Made shutdown script executable"

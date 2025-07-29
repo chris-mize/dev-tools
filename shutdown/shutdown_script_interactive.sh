@@ -4,12 +4,12 @@
 # This script will shutdown the computer at 5:45 PM daily with user interaction
 #
 # NOTIFICATION PERMISSIONS:
-# This script requires notification permissions to work properly.
-# If notifications don't appear, you may need to manually grant permissions:
+# Notification permissions are handled during installation.
+# If notifications don't appear, re-run the install script or manually grant permissions:
 # 1. Go to System Preferences > Notifications & Focus
 # 2. Find "Terminal" or "iTerm" in the list
 # 3. Enable notifications for the terminal application
-# 4. Alternatively, install terminal-notifier: brew install terminal-notifier
+# 4. Or install terminal-notifier: brew install terminal-notifier
 
 # Set up logging
 LOG_FILE="$HOME/Library/Logs/daily_shutdown.log"
@@ -23,40 +23,14 @@ log_message() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
 }
 
-# Check and request notification permissions
-check_notification_permissions() {
-    # Check if we can send notifications by attempting a test notification
-    if osascript -e 'tell application "System Events" to display notification "Test" with title "Test"' 2>/dev/null; then
-        log_message "Notification permissions confirmed"
-        return 0
-    else
-        log_message "Notification permissions not granted, requesting access"
-        
-        # Try to request notification permissions by showing a dialog
-        osascript -e 'tell application "System Events"
-            activate
-            display dialog "This script needs notification permissions to warn you about shutdowns. Please grant notification access when prompted." with title "Notification Permission Required" buttons {"OK"} default button "OK" with icon note
-        end tell' 2>/dev/null
-        
-        # Try sending a test notification again
-        if osascript -e 'tell application "System Events" to display notification "Test" with title "Test"' 2>/dev/null; then
-            log_message "Notification permissions granted after request"
-            return 0
-        else
-            log_message "Notification permissions still not available"
-            return 1
-        fi
-    fi
-}
-
-# Notification function - with permission handling
+# Notification function - simplified since permissions handled at install
 send_notification() {
     local title="$1"
     local message="$2"
     
     # Try System Events notification first
     if osascript -e "tell application \"System Events\" to display notification \"$message\" with title \"$title\"" 2>/dev/null; then
-        log_message "Sent notification via System Events: $title - $message"
+        log_message "Sent notification: $title - $message"
         return 0
     fi
     
@@ -95,9 +69,6 @@ CURRENT_USER=$(who | grep console | awk '{print $1}' | head -1)
 # Log the shutdown attempt
 log_message "Interactive daily shutdown script started"
 
-# Check notification permissions early
-check_notification_permissions
-
 # Check if any user is logged in
 if pgrep -f "loginwindow" > /dev/null && [ -n "$CURRENT_USER" ]; then
     log_message "User session detected for user: $CURRENT_USER"
@@ -115,7 +86,7 @@ if pgrep -f "loginwindow" > /dev/null && [ -n "$CURRENT_USER" ]; then
     
     # Ask user if they want to proceed or cancel
     log_message "Asking user for confirmation"
-    user_choice=$(ask_user "Daily Shutdown" "Your computer is scheduled to shutdown in 1 minute. Do you want to proceed or cancel?" "Proceed" "Cancel")
+    user_choice=$(ask_user "Daily Shutdown" "Your computer is scheduled to shutdown now." "Proceed" "Cancel")
     
     if [ "$user_choice" = "Cancel" ]; then
         log_message "User cancelled shutdown"
