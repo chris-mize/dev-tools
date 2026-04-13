@@ -1,0 +1,8 @@
+term = xterm-256color
+maximize = true
+# window-padding-x = 10
+# window-padding-y = 10
+
+# Shared Ghostty settings live here.
+# Machine-local wallpaper settings live in config.local.
+config-file = ?config.local

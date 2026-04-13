@@ -1,0 +1,4 @@
+# Host-specific environment variables that must be set before fzf/zoxide init go here.
+# Examples:
+# export FZF_CTRL_R_COMMAND=
+# export FZF_ALT_C_COMMAND=

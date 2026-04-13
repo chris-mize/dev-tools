@@ -1,0 +1,5 @@
+# Machine-local shell customizations belong here.
+# This file is intentionally not linked by install.sh.
+
+# Example:
+# export OPENAI_API_KEY="..."

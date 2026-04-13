@@ -1,0 +1,19 @@
+# Official references:
+# - tmux: https://github.com/tmux/tmux/wiki/Installing
+# - fzf: https://github.com/junegunn/fzf#installation
+# - ripgrep: https://github.com/BurntSushi/ripgrep#installation
+# - bat: https://github.com/sharkdp/bat#installation
+# - zoxide: https://github.com/ajeetdsouza/zoxide#installation
+# - zsh-autosuggestions: https://formulae.brew.sh/formula/zsh-autosuggestions
+# - zsh-syntax-highlighting: https://formulae.brew.sh/formula/zsh-syntax-highlighting
+# - ghostty cask / official binary docs: https://ghostty.org/docs/install/binary
+
+brew "bat"
+brew "fzf"
+brew "ripgrep"
+brew "tmux"
+brew "zoxide"
+brew "zsh-autosuggestions"
+brew "zsh-syntax-highlighting"
+
+cask "ghostty"
