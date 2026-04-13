@@ -74,33 +74,33 @@ if pgrep -f "loginwindow" > /dev/null && [ -n "$CURRENT_USER" ]; then
     log_message "User session detected for user: $CURRENT_USER"
     
     # Send initial warning notification
-    send_notification "Daily Shutdown Warning" "Your computer will shutdown in 5 minutes. Please save your work."
+    send_notification "Daily Sleep Warning" "Your computer will go to sleep in 5 minutes. Please save your work."
     
     # Wait 2 minutes, then send second warning
     sleep 120
-    send_notification "Daily Shutdown Warning" "Your computer will shutdown in 3 minutes. Save your work now!"
+    send_notification "Daily Sleep Warning" "Your computer will go to sleep in 3 minutes. Save your work now!"
     
     # Wait 2 more minutes, then ask user
     sleep 120
-    send_notification "Daily Shutdown Warning" "Your computer will shutdown in 1 minute. Final warning!"
+    send_notification "Daily Sleep Warning" "Your computer will go to sleep in 1 minute. Final warning!"
     
     # Ask user if they want to proceed or cancel
     log_message "Asking user for confirmation"
-    user_choice=$(ask_user "Daily Shutdown" "Your computer is scheduled to shutdown now." "Proceed" "Cancel")
+    user_choice=$(ask_user "Daily Sleep" "Your computer is scheduled to sleep now." "Proceed" "Cancel")
     
     if [ "$user_choice" = "Cancel" ]; then
-        log_message "User cancelled shutdown"
-        send_notification "Shutdown Cancelled" "Daily shutdown has been cancelled. You can continue working."
+        log_message "User cancelled sleep"
+        send_notification "Sleep Cancelled" "Daily sleep has been cancelled. You can continue working."
         exit 0
     else
-        log_message "User confirmed shutdown"
+        log_message "User confirmed sleep"
         
         
-        # Use System Events shutdown method (preferred)
-        log_message "Using System Events for shutdown"
-        osascript -e 'tell application "System Events" to shut down'
+        # Use System Events sleep method (preferred)
+        log_message "Using System Events for sleep"
+        osascript -e 'tell application "System Events" to sleep'
         
-        log_message "Shutdown command executed"
+        log_message "Sleep command executed"
     fi
 else
     log_message "No user session detected, skipping shutdown"

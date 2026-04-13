@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Test script to verify shutdown command works
-echo "Testing shutdown command..."
+# Test script to verify sleep command works
+echo "Testing sleep command..."
 
 # Test the shutdown methods
 echo "Testing pmset..."
@@ -12,18 +12,11 @@ else
     echo "✗ pmset not available"
 fi
 
-echo "Testing shutdown command..."
-if shutdown -h +0 2>/dev/null; then
-    echo "✓ shutdown command works without sudo"
+echo "Testing osascript sleep..."
+if osascript -e 'tell application "System Events" to sleep' 2>/dev/null; then
+    echo "✓ osascript sleep works"
 else
-    echo "✗ shutdown command requires sudo"
-fi
-
-echo "Testing osascript shutdown..."
-if osascript -e 'tell application "System Events" to shut down' 2>/dev/null; then
-    echo "✓ osascript shutdown works"
-else
-    echo "✗ osascript shutdown failed"
+    echo "✗ osascript sleep failed"
 fi
 
 echo "Test complete!" 
