@@ -272,6 +272,8 @@ extract_legacy_ghostty_local_settings() {
   local legacy_config="$1"
   local output="$2"
 
+  printf 'background = 000000\n' > "$output"
+
   awk '
     /^[[:space:]]*#/ || /^[[:space:]]*$/ { next }
     {
@@ -283,11 +285,11 @@ extract_legacy_ghostty_local_settings() {
       value = substr(line, index(line, "=") + 1)
       sub(/^[[:space:]]*/, "", value)
 
-      if (key == "background" || key == "background-image" || key == "background-image-opacity" || key == "background-image-fit") {
+      if (key == "background-image" || key == "background-image-opacity" || key == "background-image-fit") {
         print key " = " value
       }
     }
-  ' "$legacy_config" > "$output"
+  ' "$legacy_config" >> "$output"
 }
 
 ghostty_legacy_has_unexpected_active_settings() {
@@ -379,21 +381,55 @@ write_ghostty_local_block() {
   printf 'Updated Ghostty local wallpaper settings in %s\n' "$target"
 }
 
+extract_existing_ghostty_local_settings_with_black_background() {
+  local target="$1"
+  local output="$2"
+
+  printf 'background = 000000\n' > "$output"
+
+  if [[ ! -e "$target" ]]; then
+    return
+  fi
+
+  awk -v start="$GHOSTTY_WALLPAPER_START" -v end="$GHOSTTY_WALLPAPER_END" '
+    $0 == start { in_block = 1; next }
+    $0 == end { in_block = 0; next }
+    in_block {
+      line = $0
+      sub(/^[[:space:]]*/, "", line)
+      split(line, parts, "=")
+      key = parts[1]
+      gsub(/[[:space:]]+$/, "", key)
+
+      if (key != "background") {
+        print $0
+      }
+    }
+  ' "$target" >> "$output"
+}
+
 maybe_migrate_ghostty_legacy_config() {
   local legacy_config="$HOME/.config/ghostty/config"
   local local_config="$HOME/.config/ghostty/config.local"
   local extracted
 
+  extracted="$(mktemp)"
+
   if [[ ! -f "$legacy_config" ]]; then
+    extract_existing_ghostty_local_settings_with_black_background "$local_config" "$extracted"
+    write_ghostty_local_block "$extracted" "$local_config"
+    rm -f "$extracted"
     return
   fi
 
   if ! ghostty_legacy_has_unexpected_active_settings "$legacy_config"; then
     printf 'Warning: legacy Ghostty config has unexpected active settings; leaving %s in place for manual review.\n' "$legacy_config"
+    extract_existing_ghostty_local_settings_with_black_background "$local_config" "$extracted"
+    write_ghostty_local_block "$extracted" "$local_config"
+    rm -f "$extracted"
     return
   fi
 
-  extracted="$(mktemp)"
   extract_legacy_ghostty_local_settings "$legacy_config" "$extracted"
 
   if [[ -s "$extracted" ]]; then

@@ -1,5 +1,6 @@
 term = xterm-256color
 maximize = true
+background = 000000
 # window-padding-x = 10
 # window-padding-y = 10
 
