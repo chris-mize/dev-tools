@@ -85,7 +85,6 @@ link_file() {
     fi
   fi
 
-  backup_path "$target"
   temp_link="$(mktemp "$target_dir/.dotfiles-link.XXXXXX")"
   rm -f "$temp_link"
   ln -s "$source" "$temp_link"
@@ -160,10 +159,6 @@ write_managed_block() {
   mkdir -p "$target_dir"
   ensure_target_is_not_directory "$target"
 
-  if [[ -L "$target" ]]; then
-    backup_path_once "$target"
-  fi
-
   stripped="$(mktemp)"
   normalized="$(mktemp)"
   rendered="$(mktemp "$target_dir/.dotfiles-rendered.XXXXXX")"
@@ -221,10 +216,6 @@ write_managed_block() {
     rm -f "$stripped" "$normalized" "$rendered"
     printf 'Managed block already up to date: %s\n' "$target"
     return
-  fi
-
-  if [[ -e "$target" || -L "$target" ]]; then
-    backup_path_once "$target"
   fi
 
   mv "$rendered" "$target"
@@ -372,10 +363,6 @@ write_ghostty_local_block() {
     return
   fi
 
-  if [[ -e "$target" || -L "$target" ]]; then
-    backup_path_once "$target"
-  fi
-
   mv "$rendered" "$target"
   rm -f "$stripped" "$normalized" "$rendered"
   printf 'Updated Ghostty local wallpaper settings in %s\n' "$target"
@@ -436,7 +423,6 @@ maybe_migrate_ghostty_legacy_config() {
     write_ghostty_local_block "$extracted" "$local_config"
   fi
 
-  backup_path_once "$legacy_config"
   rm -f "$legacy_config"
   rm -f "$extracted"
   printf 'Migrated legacy Ghostty config from %s\n' "$legacy_config"
@@ -506,6 +492,8 @@ validate_install_targets() {
   ensure_target_is_not_directory "$HOME/.zshrc"
   ensure_target_is_not_directory "$HOME/.tmux.conf"
   ensure_target_is_not_directory "$HOME/.config/ghostty/config.ghostty"
+  ensure_target_is_not_directory "$HOME/.config/ghostty/config.local"
+  ensure_target_is_not_directory "$HOME/.config/ghostty/config"
   ensure_target_is_not_directory "$HOME/.config/ghostty/change_wallpaper.sh"
 }
 
@@ -519,6 +507,10 @@ install_managed_shell_configs() {
   local zshrc_end="# dotfiles:end managed zshrc"
   local tmux_start="# dotfiles:start managed tmux"
   local tmux_end="# dotfiles:end managed tmux"
+
+  backup_path_once "$zprofile_target"
+  backup_path_once "$zshrc_target"
+  backup_path_once "$tmux_target"
 
   validate_managed_block_state "$zprofile_target" "$zprofile_start" "$zprofile_end"
   validate_managed_block_state "$zshrc_target" "$zshrc_start" "$zshrc_end"
@@ -537,6 +529,13 @@ install_managed_shell_configs() {
   warn_on_duplicate_patterns "$tmux_target" "$tmux_start" "$tmux_end" "TPM setup" 'tmux-plugins/tpm|run[[:space:]]+['\''"]~/.tmux/plugins/tpm/tpm['\''"]'
 }
 
+backup_ghostty_targets() {
+  backup_path_once "$HOME/.config/ghostty/config.ghostty"
+  backup_path_once "$HOME/.config/ghostty/config.local"
+  backup_path_once "$HOME/.config/ghostty/config"
+  backup_path_once "$HOME/.config/ghostty/change_wallpaper.sh"
+}
+
 validate_install_targets
 
 if [[ "$SKIP_DEPS" != "1" ]]; then
@@ -544,6 +543,7 @@ if [[ "$SKIP_DEPS" != "1" ]]; then
 fi
 
 install_managed_shell_configs
+backup_ghostty_targets
 link_file "$REPO_ROOT/configs/ghostty/config.ghostty" "$HOME/.config/ghostty/config.ghostty"
 maybe_migrate_ghostty_legacy_config
 link_file "$REPO_ROOT/configs/ghostty/change_wallpaper.sh" "$HOME/.config/ghostty/change_wallpaper.sh"

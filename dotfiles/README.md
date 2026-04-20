@@ -32,7 +32,7 @@ Install only packages and external dependencies:
 - symlinks `ghostty` config files into `~/.config/ghostty/`
 - migrates legacy Ghostty wallpaper settings from `~/.config/ghostty/config` into `~/.config/ghostty/config.local` when safe
 - tries to install tmux plugins
-- backs up replaced content into `~/.dotfiles-backups/`
+- backs up existing managed config files into `~/.dotfiles-backups/` before updating, replacing, or migrating them
 
 ## Local Overrides
 
