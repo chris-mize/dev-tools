@@ -495,6 +495,11 @@ validate_install_targets() {
   ensure_target_is_not_directory "$HOME/.config/ghostty/config.local"
   ensure_target_is_not_directory "$HOME/.config/ghostty/config"
   ensure_target_is_not_directory "$HOME/.config/ghostty/change_wallpaper.sh"
+  ensure_parent_path_is_usable "$HOME/.codex"
+  ensure_parent_path_is_usable "$HOME/.claude"
+  ensure_target_is_not_directory "$HOME/AGENTS.md"
+  ensure_target_is_not_directory "$HOME/.codex/AGENTS.md"
+  ensure_target_is_not_directory "$HOME/.claude/CLAUDE.md"
 }
 
 install_managed_shell_configs() {
@@ -536,6 +541,52 @@ backup_ghostty_targets() {
   backup_path_once "$HOME/.config/ghostty/change_wallpaper.sh"
 }
 
+ensure_agents_alias() {
+  local target="$1"
+  local desired="$HOME/AGENTS.md"
+
+  mkdir -p "$(dirname "$target")"
+  ensure_target_is_not_directory "$target"
+
+  if [[ -e "$target" || -L "$target" ]]; then
+    if [[ "$(canonical_path "$target")" == "$(canonical_path "$desired")" ]]; then
+      printf 'Already linked: %s\n' "$target"
+      return
+    fi
+  fi
+
+  backup_path_once "$target"
+  link_file "$desired" "$target"
+}
+
+remove_retired_policy_links() {
+  local policy_dir="$HOME/.agents/policy"
+  local name
+  local target
+
+  for name in coding.md non_coding.md; do
+    target="$policy_dir/$name"
+    if [[ -e "$target" || -L "$target" ]]; then
+      backup_path_once "$target"
+      rm -f "$target"
+      printf 'Removed retired policy link %s\n' "$target"
+    fi
+  done
+
+  if [[ -d "$policy_dir" ]] && rmdir "$policy_dir" 2>/dev/null; then
+    printf 'Removed empty directory %s\n' "$policy_dir"
+  fi
+}
+
+install_agent_files() {
+  backup_path_once "$HOME/AGENTS.md"
+
+  link_file "$REPO_ROOT/agents/AGENTS.md" "$HOME/AGENTS.md"
+  ensure_agents_alias "$HOME/.codex/AGENTS.md"
+  ensure_agents_alias "$HOME/.claude/CLAUDE.md"
+  remove_retired_policy_links
+}
+
 validate_install_targets
 
 if [[ "$SKIP_DEPS" != "1" ]]; then
@@ -543,6 +594,7 @@ if [[ "$SKIP_DEPS" != "1" ]]; then
 fi
 
 install_managed_shell_configs
+install_agent_files
 backup_ghostty_targets
 link_file "$REPO_ROOT/configs/ghostty/config.ghostty" "$HOME/.config/ghostty/config.ghostty"
 maybe_migrate_ghostty_legacy_config

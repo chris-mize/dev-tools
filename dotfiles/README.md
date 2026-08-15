@@ -5,6 +5,7 @@ This repo manages:
 - `zsh` via managed blocks in `~/.zprofile` and `~/.zshrc`
 - `tmux` via a managed block in `~/.tmux.conf`
 - `ghostty` via symlinked files in `~/.config/ghostty/`
+- agent instructions via a symlinked `~/AGENTS.md`
 
 ## Install
 
@@ -29,6 +30,8 @@ Install only packages and external dependencies:
 
 - installs dependencies
 - updates the managed `zsh` and `tmux` blocks in your home directory
+- symlinks `agents/AGENTS.md` to `~/AGENTS.md`
+- keeps `~/.codex/AGENTS.md` and `~/.claude/CLAUDE.md` pointed at `~/AGENTS.md`
 - symlinks `ghostty` config files into `~/.config/ghostty/`
 - migrates legacy Ghostty wallpaper settings from `~/.config/ghostty/config` into `~/.config/ghostty/config.local` when safe
 - tries to install tmux plugins
