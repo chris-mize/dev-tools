@@ -4,7 +4,7 @@ set -euo pipefail
 
 START_MARKER="# dotfiles:start wallpaper"
 END_MARKER="# dotfiles:end wallpaper"
-TARGET_LUMA="${GHOSTTY_WALLPAPER_TARGET_LUMA:-55}"
+TARGET_LUMA="${GHOSTTY_WALLPAPER_TARGET_LUMA:-65}"
 MIN_OPACITY="0.15"
 MAX_OPACITY="1.00"
 SAMPLE_SIZE=32
@@ -46,6 +46,88 @@ validate_managed_block_state() {
         printf 'Error: invalid wallpaper block markers in %s\n' "$target" >&2
         exit 1
     fi
+}
+
+# Replace only background-image and background-image-opacity. Leave every
+# other line, including commented position/fit/background, untouched.
+write_image_and_opacity() {
+    local target="$1"
+    local image_path="$2"
+    local opacity="$3"
+    local output="$4"
+
+    WALLSWITCH_IMAGE="$image_path" WALLSWITCH_OPACITY="$opacity" awk \
+        -v start="$START_MARKER" \
+        -v end="$END_MARKER" '
+        function key_of(line,    trimmed) {
+            trimmed = line
+            sub(/^[[:space:]]*/, "", trimmed)
+            while (trimmed ~ /^#/) {
+                sub(/^#/, "", trimmed)
+                sub(/^[[:space:]]*/, "", trimmed)
+            }
+            split(trimmed, parts, "=")
+            key = parts[1]
+            gsub(/[[:space:]]+$/, "", key)
+            return key
+        }
+
+        BEGIN {
+            image = ENVIRON["WALLSWITCH_IMAGE"]
+            opacity = ENVIRON["WALLSWITCH_OPACITY"]
+        }
+
+        $0 == start {
+            in_block = 1
+            found_block = 1
+            print
+            next
+        }
+
+        $0 == end {
+            if (in_block) {
+                if (!saw_image) {
+                    print "background-image = \"" image "\""
+                }
+                if (!saw_opacity) {
+                    print "background-image-opacity = " opacity
+                }
+            }
+            in_block = 0
+            print
+            next
+        }
+
+        in_block && key_of($0) == "background-image" {
+            if (!saw_image) {
+                print "background-image = \"" image "\""
+                saw_image = 1
+            }
+            next
+        }
+
+        in_block && key_of($0) == "background-image-opacity" {
+            if (!saw_opacity) {
+                print "background-image-opacity = " opacity
+                saw_opacity = 1
+            }
+            next
+        }
+
+        { print }
+
+        END {
+            if (!found_block) {
+                if (NR > 0) {
+                    print ""
+                }
+                print start
+                print "background-image = \"" image "\""
+                print "background-image-opacity = " opacity
+                print end
+            }
+        }
+    ' "$target" > "$output"
 }
 
 measure_image_luma_stats() {
@@ -201,11 +283,10 @@ validate_managed_block_state "$CONFIG_FILE"
 ESCAPED_IMAGE_PATH="${IMAGE_PATH//\\/\\\\}"
 ESCAPED_IMAGE_PATH="${ESCAPED_IMAGE_PATH//\"/\\\"}"
 
-tmp_file="$(mktemp)"
 sample_dir="$(mktemp -d "${TMPDIR:-/tmp}/ghostty-wallpaper-sample.XXXXXX")"
 sample_bmp="$sample_dir/sample.bmp"
 final_file="$(mktemp "$(dirname "$CONFIG_FILE")/.ghostty-config.local.XXXXXX")"
-trap 'rm -f "$tmp_file" "$final_file"; rm -rf "$sample_dir"' EXIT
+trap 'rm -f "$final_file"; rm -rf "$sample_dir"' EXIT
 
 if ! LUMA_STATS="$(measure_image_luma_stats "$IMAGE_PATH" "$sample_bmp")"; then
     printf 'Error: failed to measure wallpaper brightness for %s\n' "$IMAGE_PATH" >&2
@@ -214,23 +295,7 @@ fi
 read -r MEAN_LUMA P95_LUMA MEASURED_LUMA <<< "$LUMA_STATS"
 IMAGE_OPACITY="$(calculate_opacity "$MEASURED_LUMA")"
 
-awk -v start="$START_MARKER" -v end="$END_MARKER" '
-  $0 == start { skip=1; next }
-  $0 == end { skip=0; next }
-  !skip { print }
-' "$CONFIG_FILE" > "$tmp_file"
-
-{
-    cat "$tmp_file"
-    [[ -s "$tmp_file" ]] && printf '\n'
-    printf '%s\n' "$START_MARKER"
-    printf 'background = 000000\n'
-    printf 'background-image = "%s"\n' "$ESCAPED_IMAGE_PATH"
-    printf 'background-image-opacity = %s\n' "$IMAGE_OPACITY"
-    printf 'background-image-fit = cover\n'
-    printf '%s\n' "$END_MARKER"
-} > "$final_file"
-
+write_image_and_opacity "$CONFIG_FILE" "$ESCAPED_IMAGE_PATH" "$IMAGE_OPACITY" "$final_file"
 mv "$final_file" "$CONFIG_FILE"
 
 echo "✅ Ghostty background updated to: $IMAGE_PATH"
